@@ -1,0 +1,66 @@
+library("magrittr")
+
+# setwd("C:/Users/ksinteppadon/Documents/R/Facebook/Facebook")
+load("fbdashboard.RData")
+fbdata = totabl
+fbdata$date_start = as.Date(fbdata$date_start, origin = "1899-12-30")
+# 
+# setwd("C:/Users/ksinteppadon/Documents/R/Adwords/Adwords")
+load("awdashboard.RData")
+awdata = awtable
+awdata$Day = as.Date(awdata$Day, origin = "1899-12-30")
+
+# library(readr)
+# fbdashboard <- read_csv("~/R/Basecamp/fbdashboard.csv")
+# awdashboard <- read_csv("~/R/Basecamp/awdashboard.csv")
+
+
+#clean fb column
+fbdata = subset(fbdata, select=c('date_start','Campaign','Phase','Channel','Audience','Placement','Creative','Copy_variant',
+                                 'Content_pillar','Creative_type','spend','impressions','p95_view','link_click','offsite_conversion.fb_pixel_view_content',
+                                 'offsite_conversion.fb_pixel_purchase','p25_view',	'p50_view',	'p75_view', 'p95_view','video_view','10s_view','30s_view'))
+
+awdata = subset(awdata, select=c('Day', 'Campaign', 'Phase', 'Channel', 'Audience', 'Placement', 'Creative', 'Copy_variant', 'Creative_type',
+                                 'Cost',  'Impressions', 'Views','Clicks','Hotel_page_visits','Bookings','Videoplayedto25%', 'Videoplayedto50%', 'Videoplayedto75%',
+                                 'Videoplayedto100%'))
+
+
+fbcolname = c('date','campaign','phase','channel','audience','placement','creative','copy_variant',
+              'content_pillar','creative_type','spend','impressions','video_views','link_click','hotel_page_visits',
+              'bookings','p25_view',	'p50_view',	'p75_view', 'p95_view','video_3s','10s_view','30s_view')
+awcolname = c('date', 'campaign', 'phase', 'channel', 'audience', 'placement', 'creative', 'copy_variant', 'creative_type',
+              'spend',  'impressions', 'video_views','link_click','hotel_page_visits','bookings','Videoplayedto25%', 'Videoplayedto50%', 'Videoplayedto75%',
+              'Videoplayedto100%')
+
+
+for(i in 1:length(fbcolname)){
+  colnames(fbdata)[i] = fbcolname[i]
+}
+
+for(i in 1:length(awcolname)){
+  colnames(awdata)[i] = awcolname[i]
+}
+
+rbind.all.columns <- function(x, y) {
+  
+  x.diff <- setdiff(colnames(x), colnames(y))
+  y.diff <- setdiff(colnames(y), colnames(x))
+  
+  x[, c(as.character(y.diff))] <- NA
+  
+  y[, c(as.character(x.diff))] <- NA
+  
+  return(rbind(x, y))
+}
+
+a=rbind.all.columns(fbdata, awdata)
+atable = as.data.frame(a)
+save(atable, file = "basecampdashboard.RData")
+
+#write csv file for basecamp dashboard
+file <- sprintf("basecampdashboard")
+Sys.sleep(1)
+setwd("//bk-agfil-1001/Department/MK/Demand Innovation/Social and Display Experiments/Insights/2017 Q1 IDN Campaign")
+write.table(a , paste0(file,".csv") , row.names = FALSE , sep = "," )
+
+#fb_bc = as.data.frame(fbdata)
