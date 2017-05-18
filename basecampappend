@@ -1,0 +1,39 @@
+load("basecampdashboard.RData")
+a = atable
+
+load("ytd_fbdashboard.RData")
+fbdata = ytd_fbdata
+
+load("ytd_awdashboard.RData")
+fbdata = ytd_awdata
+
+fbcolname = c('date','campaign','phase','channel','audience','placement','creative','copy_variant',
+              'content_pillar','creative_type','spend','impressions','video_views','link_click','hotel_page_visits',
+              'bookings','p25_view',	'p50_view',	'p75_view', 'p95_view','video_3s','10s_view','30s_view')
+awcolname = c('date', 'campaign', 'phase', 'channel', 'audience', 'placement', 'creative', 'copy_variant', 'creative_type',
+              'spend',  'impressions', 'video_views','link_click','hotel_page_visits','bookings','Videoplayedto25%', 'Videoplayedto50%', 'Videoplayedto75%',
+              'Videoplayedto100%')
+
+for(i in 1:length(fbcolname)){
+  colnames(fbdata)[i] = fbcolname[i]
+}
+
+for(i in 1:length(awcolname)){
+  colnames(awdata)[i] = awcolname[i]
+}
+
+rbind.all.columns <- function(x, y) {
+  
+  x.diff <- setdiff(colnames(x), colnames(y))
+  y.diff <- setdiff(colnames(y), colnames(x))
+  
+  x[, c(as.character(y.diff))] <- NA
+  
+  y[, c(as.character(x.diff))] <- NA
+  
+  return(rbind(x, y))
+}
+
+a=rbind.all.columns(fbdata, awdata)
+atable = as.data.frame(a)
+save(atable, file = "basecampdashboard.RData")
